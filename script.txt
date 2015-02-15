@@ -39,7 +39,7 @@ package models
 
 case class FavouriteStudio(userId: Int, studioId: Int)
 
-#### Chapter 1.1 : JSON ####
+#### CHAPTER 1.1 : JSON ####
 
 ## Implement writes combinator (add to models.FavouriteStudio)
 import play.api.libs.json._
@@ -57,3 +57,68 @@ Ok(Json.obj("result" -> FavouriteStudio(userId, studioId)))
 
 ## Test with CuRL
 curl -X POST 'http://localhost:9000/users/12345/favouriteStudios/98765'
+
+#### CHAPTER 2 : Anorm ####
+
+## MySQL Configuration (in application.conf)
+db.default.driver=com.mysql.jdbc.Driver
+db.default.url="jdbc:mysql://127.0.0.1:3306/favourites-svc"
+db.default.user="favourites-svc"
+db.default.password="abcd1234"
+
+## Create table in MySQL
+CREATE TABLE `favouriteStudio` (
+    `userId` INT(7) NOT NULL,
+    `studioId` INT(7) NOT NULL,
+    PRIMARY KEY `idx_user_studio` (`userId`, `studioId`),
+    INDEX `idx_user` (`userId`)
+);
+
+## Define new class: models.dao.FavouriteStudioDAO
+package models.dao
+
+import models.FavouriteStudio
+import anorm._
+import play.api.db.DB
+import play.api.Play.current
+
+object FavouriteStudioDAO {
+  def create(favourite: FavouriteStudio) = {
+    DB.withConnection { implicit c =>
+      SQL(
+        """
+          | INSERT IGNORE INTO `favouriteStudio` (`userId`, `studioId`)
+          | VALUES
+          |   ({userId}, {studioId});
+        """.stripMargin).on(
+          "userId" -> favourite.userId,
+          "studioId" -> favourite.studioId
+        ).executeInsert()
+    }
+  }
+}
+
+## Use DAO in model class (models.FavouriteStudio)
+import models.dao.FavouriteStudioDAO
+
+def addFavourite(userId: Int, studioId: Int): FavouriteStudio = {
+  val favourite = FavouriteStudio(userId, studioId)
+
+  FavouriteStudioDAO.create(favourite)
+
+  favourite
+}
+
+## Use Model in controller (controllers.FavouriteStudios)
+import models.FavouriteStudio
+
+val favourite = FavouriteStudio.addFavourite(userId, studioId)
+
+## Test with CuRL
+curl -X POST 'http://localhost:9000/users/12345/favouriteStudios/98765'
+
+#### CHAPTER 2.1 : Add a read endpoint ####
+
+## Should we bother?
+
+#### CHAPTER 3 : Caching ####
