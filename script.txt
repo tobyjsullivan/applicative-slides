@@ -1,0 +1,59 @@
+#### CHAPTER 0 : Setup our project ####
+
+## Create Demo Sandbox
+rm -rf ~/projects/applicative-sandbox && mkdir -p ~/projects/applicative-sandbox && cd ~/projects/applicative-sandbox
+
+## Create the new project
+activator new favourites-service play-scala
+
+## Enter play project
+cd favourites-service && activator run
+
+## Check out the running server
+http://localhost:9000
+
+
+#### CHAPTER 1 : Designing the API ####
+
+## Get to chapter code
+cd ~/projects/applicative-demo/chapter1 && activator run
+
+## Create new controller: FavouriteStudios
+package controllers
+
+import play.api.mvc.{Controller, Action}
+
+object FavouriteStudios extends Controller {
+	def add(userId: Int, studioId: Int) = Action {
+		// TODO: Add favourite
+
+		Ok(???)
+	}
+}
+
+## Configure routes
+POST		/users/:userId/favouriteStudios/:studioId		controllers.FavouriteStudios.add(userId: Int, studioId: Int)
+
+## Create new model: FavouriteStudio
+package models
+
+case class FavouriteStudio(userId: Int, studioId: Int)
+
+#### Chapter 1.1 : JSON ####
+
+## Implement writes combinator (add to models.FavouriteStudio)
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+
+object FavouriteStudio {
+	implicit val favouriteStudioWrites: Writes[FavouriteStudio] = (
+		(JsPath \ "userId").write[Int] and
+		(JsPath \ "studioId").write[Int]
+	)(unlift(FavouriteStudio.unapply))
+}
+
+## Use writes combinator (in controllers.FavouriteStudios)
+Ok(Json.obj("result" -> FavouriteStudio(userId, studioId)))
+
+## Test with CuRL
+curl -X POST 'http://localhost:9000/users/12345/favouriteStudios/98765'
