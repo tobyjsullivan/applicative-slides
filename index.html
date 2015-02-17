@@ -114,7 +114,7 @@
 
         <section>
           <p>DEMO: App skeleton</p>
-          <p><small>Demo code on <a href="#">Github</a> [TODO]</small></p>
+          <p><small>Find the code on <a href="#">Github</a> [TODO]</small></p>
         </section>
 
         <section>
@@ -206,8 +206,126 @@ object FavouriteStudio {
         </section>
 
         <section>
+          <h2>Update the Controller</h2>
+          <pre><code class="scala">/* app/controllers/FavouriteStudio.scala */
+
+package controllers
+
+import models.FavouriteStudio
+import play.api.mvc.{Controller, Action}
+
+object FavouriteStudios extends Controller {
+  def add(userId: Int, studioId: Int) = Action {
+    // TODO: Write the studio to the DB
+    val favourite = FavouriteStudio(userId, studioId)
+
+    Ok(Json.obj("result" -> favourite))
+  }
+}
+          </code></pre>
+        </section>
+
+        <section>
           <p>DEMO: CuRL our new endpoint</p>
-          <p><small>Demo code on <a href="#">Github</a> [TODO]</small></p>
+          <p><small>Find the code on <a href="#">Github</a> [TODO]</small></p>
+        </section>
+
+        <section>
+          <h2>Chapter 2.0</h2>
+          <h1>MySQL with Anorm</h1>
+        </section>
+
+        <section>
+          <h2>Easy configuration</h2>
+          <pre><code>
+# conf/application.conf
+
+db.default.driver=com.mysql.jdbc.Driver
+db.default.url="jdbc:mysql://10.0.0.3:3306/favourites-svc"
+db.default.user="favourites-svc"
+db.default.password="s0meP@ssW0rd"
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Define a table in MySQL</h2>
+          <pre><code class="sql">
+CREATE TABLE `favouriteStudio` (
+    `userId` INT(7) NOT NULL,
+    `studioId` INT(7) NOT NULL,
+    PRIMARY KEY `idx_user_studio` (`userId`, `studioId`),
+    INDEX `idx_user` (`userId`)
+);
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Define a Data Access Object</h2>
+          <pre><code class="scala">/* app/models/dao/FavouriteStudioDAO.scala */
+
+object FavouriteStudioDAO {
+  def create(favourite: FavouriteStudio) =
+    DB.withConnection { implicit c =>
+      SQL(
+        """
+          | INSERT IGNORE INTO `favouriteStudio` (`userId`, `studioId`)
+          | VALUES
+          |   ({userId}, {studioId});
+        """.stripMargin).on(
+          "userId" -> favourite.userId,
+          "studioId" -> favourite.studioId
+        ).executeInsert()
+    }
+}</code></pre>
+        </section>
+
+        <section>
+          <h2>Use the DAO in the Model</h2>
+          <pre><code class="scala">/* app/models/FavouriteStudio.scala */
+
+object FavouriteStudio {
+  def addFavourite(userId: Int, studioId: Int): FavouriteStudio = {
+    val favourite = FavouriteStudio(userId, studioId)
+
+    FavouriteStudioDAO.create(favourite)
+
+    favourite
+  }
+
+  // JSON writes combinator excluded...
+}
+
+case class FavouriteStudio(userId: Int, studioId: Int)
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Update the Controller</h2>
+          <pre><code class="scala">/* app/controllers/FavouriteStudio.scala */
+
+package controllers
+
+import models.FavouriteStudio
+import play.api.mvc.{Controller, Action}
+
+object FavouriteStudios extends Controller {
+  def add(userId: Int, studioId: Int) = Action {
+    val favourite = FavouriteStudio.addFavourite(userId, studioId)
+
+    Ok(Json.obj("result" -> favourite))
+  }
+}
+          </code></pre>
+        </section>
+
+        <section>
+          <p>DEMO: CuRL data to the DB!</p>
+          <p><small>Find the code on <a href="#">Github</a> [TODO]</small></p>
+        </section>
+
+        <section>
+          <h2>Chapter 3.0</h2>
+          <h1>Caching</h1>
         </section>
       </div>
 
