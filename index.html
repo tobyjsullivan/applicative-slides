@@ -358,6 +358,105 @@ object FavouriteStudios extends Controller {
           <h2>Chapter 4.0</h2>
           <h1>Actors</h1>
         </section>
+
+        <section>
+          <h2>Actors</h2>
+          <ul>
+            <li>Allow us to perform tasks asyncronously and reliably</li>
+            <li>In this case, send off push notifications to friends</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Define an Actor</h2>
+          <pre><code class="scala">/* app/actors/NotificationActor.scala */
+
+object NotificationActor {
+  def props: Props = Props(new NotificationActor)
+}
+
+class NotificationActor extends Actor {
+  def receive = {
+    case favourite: FavouriteStudio =>
+      notifyFriends(favourite)
+  }
+
+  private def notifyFriends(favourite: FavouriteStudio): Unit = {
+    // TODO: Lookup list of friends and send a push notification
+  }
+}</code></pre>
+        </section>
+
+        <section>
+          <h2>Send a Message to the Actor</h2>
+          <pre><code class="scala">/* app/models/FavouriteStudio.scala */
+
+def addFavourite(userId: Int, studioId: Int): FavouriteStudio = {
+  val favourite = FavouriteStudio(userId, studioId)
+
+  FavouriteStudioDAO.create(favourite)
+
+  // Send a message to the notification actor describing the added favourite
+  notificationActor ! favourite
+
+  favourite
+}</code></pre>
+        </section>
+
+        <section>
+          <p>DEMO: Activator console?</p>
+          <p><small>Find the code on <a href="#">Github</a> [TODO]</small></p>
+        </section>
+
+        <section>
+          <h2>Chapter 5.0</h2>
+          <h1>Web Services</h1>
+        </section>
+
+        <section>
+          <h2>Web Services</h2>
+          <ul>
+            <li>Easily consume HTTP services like other microservices</li>
+            <li>In this case, read friend data from our monolithic app</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Read from a Web Service</h2>
+          <pre><code class="scala">/* app/models/dao/FriendDAO.scala */
+
+def index(userId: Int): Future[List[Friend]] = {
+  val holder: WSRequestHolder = WS.url(friendsServiceUrl)
+    .withQueryString("userId" -> userId.toString)
+
+  // Execute the web service request and get a future of a response
+  val fResponse = holder.get()
+
+  fResponse.map { response =>
+    // The response will be JSON so parse out the list of friends' IDs
+    val friendIds: List[Int] = (response.json \ "result").as[List[Int]]
+
+    // Map the list of IDs to a list of friends
+    friendIds.map(Friend.apply)
+  }
+}</code></pre>
+        </section>
+
+        <section>
+          <p>DEMO: Tying it all together.</p>
+          <p><small>Find the code on <a href="#">Github</a> [TODO]</small></p>
+        </section>
+
+        <section>
+          <h1>Thank You</h1>
+          <h2>Questions? Comments? Suggestions?</h2>
+          <p>Further reading: [TODO]</p>
+          <p><small>&nbsp;</small></p>
+          <p>If you found this interesting, Hootsuite is hiring.</p>
+        </section>
+
+
+
       </div>
 
     </div>
