@@ -319,13 +319,44 @@ object FavouriteStudios extends Controller {
         </section> -->
 
         <section>
-          <p>DEMO: CuRL data to the DB!</p>
+          <p>DEMO: CuRL data to the DB</p>
           <p><small>Find the code on <a href="#">Github</a> [TODO]</small></p>
         </section>
 
         <section>
           <h2>Chapter 3.0</h2>
           <h1>Caching</h1>
+        </section>
+
+        <section>
+          <h2>Add Caching to an Action</h2>
+          <pre><code class="scala">/* app/controllers/FavouriteStudios.scala */
+
+object FavouriteStudios extends Controller {
+  def find(userId: Int, studioId: Int) = 
+    Cached("find_"+userId+"_"+studioId) {
+      Action {
+        val oFavourite = FavouriteStudio.find(userId, studioId)
+
+        oFavourite match {
+          case None => NotFound(Json.obj("error" -> "NOT_FOUND"))
+          case Some(favourite) => Ok(Json.obj("result" -> favourite))
+        }
+      }
+    }
+
+  // Other actions excluded...
+}</code></pre>
+        </section>
+
+        <section>
+          <p>DEMO: See the performance difference</p>
+          <p><small>Find the code on <a href="#">Github</a> [TODO]</small></p>
+        </section>
+
+        <section>
+          <h2>Chapter 4.0</h2>
+          <h1>Actors</h1>
         </section>
       </div>
 
