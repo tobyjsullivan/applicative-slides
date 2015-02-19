@@ -328,27 +328,24 @@ object FavouriteStudios extends Controller {
         <section>
           <h2>Chapter 3.0</h2>
           <h1>Caching</h1>
+          <p>Improve response times in a single line</p>
         </section>
 
         <section>
           <h2>Add Caching to an Action</h2>
           <pre><code class="scala">/* app/controllers/FavouriteStudios.scala */
 
-object FavouriteStudios extends Controller {
-  def find(userId: Int, studioId: Int) = 
-    Cached("find_"+userId+"_"+studioId) {
-      Action {
-        val oFavourite = FavouriteStudio.find(userId, studioId)
+def find(userId: Int, studioId: Int) = 
+  Cached("find_" + userId + "_" + studioId) {
+    Action {
+      val oFavourite = FavouriteStudio.find(userId, studioId)
 
-        oFavourite match {
-          case None => NotFound(Json.obj("error" -> "NOT_FOUND"))
-          case Some(favourite) => Ok(Json.obj("result" -> favourite))
-        }
+      oFavourite match {
+        case None => NotFound(Json.obj("error" -> "NOT_FOUND"))
+        case Some(favourite) => Ok(Json.obj("result" -> favourite))
       }
     }
-
-  // Other actions excluded...
-}</code></pre>
+  }</code></pre>
         </section>
 
         <section>
@@ -359,10 +356,6 @@ object FavouriteStudios extends Controller {
         <section>
           <h2>Chapter 4.0</h2>
           <h1>Actors</h1>
-        </section>
-
-        <section>
-          <h2>Actors</h2>
           <ul>
             <li>Allow us to perform tasks asyncronously and reliably</li>
             <li>In this case, send off push notifications to friends</li>
@@ -413,10 +406,6 @@ def addFavourite(userId: Int, studioId: Int): FavouriteStudio = {
         <section>
           <h2>Chapter 5.0</h2>
           <h1>Web Services</h1>
-        </section>
-
-        <section>
-          <h2>Web Services</h2>
           <ul>
             <li>Easily consume HTTP services like other microservices</li>
             <li>In this case, read friend data from our monolithic app</li>
