@@ -1,0 +1,6 @@
+.reveal section .logo {
+	vertical-align: middle; 
+	border: 0; 
+	box-shadow: none;
+	height: 2em;
+}
