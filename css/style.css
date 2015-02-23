@@ -1,6 +1,9 @@
 .reveal section .logo {
 	vertical-align: middle; 
+	height: 2em;
+}
+
+.reveal section img {
 	border: 0; 
 	box-shadow: none;
-	height: 2em;
 }
